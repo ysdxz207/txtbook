@@ -12,7 +12,8 @@ object TestUtils {
     val TIMEOUT = 5000
 
     val BASE_URL = "https://m.x23wxw.com"
-    val OUT_PATH = "F:/迷途.txt"
+    val URI = "/0/122/"
+    val OUT_PATH = "F:/book.txt"
 
     fun request(url: String): Document {
         return Page.create().userAgent(USER_AGENT).readTimeout(TIMEOUT).retryTimes(6).request(url, null, Connection.Method.GET).parse()
@@ -50,17 +51,17 @@ object TestUtils {
         return e.textNodes().filter { !it.isBlank }.joinToString(separator = "\n", transform = { "\t" + it.text().trim() })
     }
 
-    @JvmStatic
-    fun main(args: Array<String>) {
+    fun downloadBook(uri: String) {
         val file = File(OUT_PATH)
         if (file.exists()) {
             file.delete()
         }
 
-        val document = request("$BASE_URL/135/135574/")
+        val document = request("$BASE_URL$uri")
         val elements = document.select("a")
 
         val chapterList = elements.filter { it.attr("href").matches(".*[0-9]+\\.html".toRegex()) }
+                .distinctBy { it.attr("href") }
 
         var n = 0
         chapterList.forEach { a ->
@@ -69,15 +70,16 @@ object TestUtils {
             val title = a.text()
             val url = BASE_URL + a.attr("href")
 
-            if (n < 206) {
-                return@forEach
-            }
-
             val content = parseChapterContent(url)
 
             FileUtils.writeStringToFile(file, title + "\n\n" + content + "\n\n\n", "UTF-8", true)
 
             println("$title - 已下载 [${n}/${chapterList.size}]")
         }
+    }
+
+    @JvmStatic
+    fun main(args: Array<String>) {
+        downloadBook(URI)
     }
 }
