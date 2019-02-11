@@ -64,14 +64,20 @@ object TestUtils {
 
         var n = 0
         chapterList.forEach { a ->
+            ++n
+
             val title = a.text()
             val url = BASE_URL + a.attr("href")
+
+            if (n < 206) {
+                return@forEach
+            }
 
             val content = parseChapterContent(url)
 
             FileUtils.writeStringToFile(file, title + "\n\n" + content + "\n\n\n", "UTF-8", true)
 
-            println("$title - 已下载 [${++n}/${chapterList.size}]")
+            println("$title - 已下载 [${n}/${chapterList.size}]")
         }
     }
 }
