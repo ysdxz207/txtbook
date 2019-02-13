@@ -61,20 +61,20 @@
 
         <dependency>
             <groupId>org.jetbrains.kotlinx</groupId>
-            <artifactId>kotlinx-coroutines-core</artifactId>
-            <version>1.1.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.jetbrains.kotlinx</groupId>
             <artifactId>kotlinx-coroutines-javafx</artifactId>
-            <version>1.1.0</version>
+            <version>1.1.1</version>
         </dependency>
 
         <dependency>
             <groupId>win.hupubao</groupId>
             <artifactId>hupubao-common</artifactId>
             <version>2.0.4</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jetbrains.kotlinx</groupId>
+            <artifactId>kotlinx-coroutines-core</artifactId>
+            <version>1.1.1</version>
         </dependency>
 
     </dependencies>

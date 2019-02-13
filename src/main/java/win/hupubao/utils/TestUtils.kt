@@ -1,10 +1,20 @@
 package win.hupubao.utils
 
+import kotlinx.coroutines.*
 import org.apache.commons.io.FileUtils
 import org.jsoup.Connection
 import org.jsoup.nodes.Document
+import org.jsoup.nodes.Element
+import win.hupubao.beans.Chapter
 import win.hupubao.common.http.Page
 import java.io.File
+import kotlin.collections.HashMap
+import kotlin.collections.distinctBy
+import kotlin.collections.filter
+import kotlin.collections.forEach
+import kotlin.collections.forEachIndexed
+import kotlin.collections.joinToString
+import kotlin.collections.set
 
 object TestUtils {
 
@@ -12,7 +22,7 @@ object TestUtils {
     val TIMEOUT = 5000
 
     val BASE_URL = "https://m.x23wxw.com"
-    val URI = "/0/122/"
+    val URI = "/135/135574/"
     val OUT_PATH = "F:/book.txt"
 
     fun request(url: String): Document {
@@ -63,23 +73,58 @@ object TestUtils {
         val chapterList = elements.filter { it.attr("href").matches(".*[0-9]+\\.html".toRegex()) }
                 .distinctBy { it.attr("href") }
 
-        var n = 0
-        chapterList.forEach { a ->
-            ++n
+        val map = HashMap<Int, Element>()
 
-            val title = a.text()
-            val url = BASE_URL + a.attr("href")
-
-            val content = parseChapterContent(url)
-
-            FileUtils.writeStringToFile(file, title + "\n\n" + content + "\n\n\n", "UTF-8", true)
-
-            println("$title - 已下载 [${n}/${chapterList.size}]")
+        chapterList.forEachIndexed { index, a ->
+            map[index + 1] = a
         }
+
+        val jobs = mutableListOf<Job>()
+
+        val chapters = mutableListOf<Chapter>()
+
+        runBlocking {
+            map.entries.forEach{ entry ->
+
+                val job = GlobalScope.launch {
+                    val title = entry.value.text()
+                    val url = BASE_URL + entry.value.attr("href")
+
+                    val content = parseChapterContent(url)
+
+                    val chapter = Chapter()
+                    chapter.title = title
+                    chapter.url = url
+                    chapter.content = content
+                    chapter.num = entry.key
+                    chapters.add(chapter)
+                }
+                jobs.add(job)
+            }
+
+            jobs.forEachIndexed { index, job ->
+                runBlocking {
+                    job.join()
+                    println("已下载${getPercentage(index + 1, chapterList.size)}")
+                }
+            }
+
+
+            chapters.sortBy { it.num }
+            chapters.forEachIndexed{ index, chapter ->
+                FileUtils.writeStringToFile(file, chapter.title + "\n\n" + chapter.content + "\n\n\n", "UTF-8", true)
+                println("${chapter.title} - 已保存${getPercentage(index + 1, chapterList.size)} [${chapter.num}/${chapterList.size}]")
+            }
+        }
+    }
+
+    fun getPercentage(a: Int, b: Int): String {
+        return (String.format("%.2f", a.toDouble().div(b) * 100).toDouble()).toString() + "%"
     }
 
     @JvmStatic
     fun main(args: Array<String>) {
+
         downloadBook(URI)
     }
 }
