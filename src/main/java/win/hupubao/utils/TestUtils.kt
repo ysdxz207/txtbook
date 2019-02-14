@@ -21,8 +21,8 @@ object TestUtils {
     val USER_AGENT = "Mozilla/5.0 (iPhone; CPU iPhone OS 12_1_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.0 Mobile/15E148 Safari/604.1"
     val TIMEOUT = 5000
 
-    val BASE_URL = "https://www.biquge.info"
-    val URI = "/3_3746/"
+    val BASE_URL = "https://m.x23wxw.com"
+    val URI = "/0/122/"
     val OUT_PATH = "F:/book.txt"
 
     fun request(url: String): Document {
@@ -74,11 +74,15 @@ object TestUtils {
         if (chapterElements.isEmpty()) {
             chapterElements = document.select("li>a").distinctBy { it.attr("href") }
         }
+        if (chapterElements.isEmpty()) {
+            chapterElements = document.select("p>a").distinctBy { it.attr("href") }
+        }
 
         if (chapterElements.isEmpty()) {
             error("未能获取到章节列表")
         }
 
+        chapterElements = chapterElements.filter { !it.text().contains("页面底部") && !it.text().contains("页面顶部") }
         val map = HashMap<Int, Element>()
 
         chapterElements.forEachIndexed { index, a ->
