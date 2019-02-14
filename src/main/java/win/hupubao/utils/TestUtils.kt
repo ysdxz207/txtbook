@@ -21,8 +21,8 @@ object TestUtils {
     val USER_AGENT = "Mozilla/5.0 (iPhone; CPU iPhone OS 12_1_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.0 Mobile/15E148 Safari/604.1"
     val TIMEOUT = 5000
 
-    val BASE_URL = "https://m.x23wxw.com"
-    val URI = "/135/135574/"
+    val BASE_URL = "https://www.biquge.info"
+    val URI = "/3_3746/"
     val OUT_PATH = "F:/book.txt"
 
     fun request(url: String): Document {
@@ -55,7 +55,7 @@ object TestUtils {
     }
 
     fun parseChapterPageContent(document: Document): String {
-        val e = document.select("div").filter { !it.textNodes().isEmpty() && it.text().length > 50 }[0]
+        val e = document.select("div").filter { !it.textNodes().isEmpty() && it.textNodes().joinToString { it.text() }.length > 50 }[0]
         e.select("p").remove()
 
         return e.textNodes().filter { !it.isBlank }.joinToString(separator = "\n", transform = { "\t" + it.text().trim() })
@@ -68,14 +68,20 @@ object TestUtils {
         }
 
         val document = request("$BASE_URL$uri")
-        val elements = document.select("a")
 
-        val chapterList = elements.filter { it.attr("href").matches(".*[0-9]+\\.html".toRegex()) }
-                .distinctBy { it.attr("href") }
+        // 获取章节a标签列表
+        var chapterElements = document.select("dd>a").distinctBy { it.attr("href") }
+        if (chapterElements.isEmpty()) {
+            chapterElements = document.select("li>a").distinctBy { it.attr("href") }
+        }
+
+        if (chapterElements.isEmpty()) {
+            error("未能获取到章节列表")
+        }
 
         val map = HashMap<Int, Element>()
 
-        chapterList.forEachIndexed { index, a ->
+        chapterElements.forEachIndexed { index, a ->
             map[index + 1] = a
         }
 
@@ -88,7 +94,12 @@ object TestUtils {
 
                 val job = GlobalScope.launch {
                     val title = entry.value.text()
-                    val url = BASE_URL + entry.value.attr("href")
+                    val href = entry.value.attr("href")
+                    val url = when {
+                        href.startsWith("/") -> BASE_URL + href
+                        href.startsWith("http") -> href
+                        else -> "$BASE_URL$URI/$href"
+                    }
 
                     val content = parseChapterContent(url)
 
@@ -105,15 +116,19 @@ object TestUtils {
             jobs.forEachIndexed { index, job ->
                 runBlocking {
                     job.join()
-                    println("已下载${getPercentage(index + 1, chapterList.size)}")
+                    println("已下载${getPercentage(index + 1, chapterElements.size)}")
                 }
             }
 
 
+            if (chapters.isEmpty()) {
+                return@runBlocking
+            }
+
             chapters.sortBy { it.num }
             chapters.forEachIndexed{ index, chapter ->
                 FileUtils.writeStringToFile(file, chapter.title + "\n\n" + chapter.content + "\n\n\n", "UTF-8", true)
-                println("${chapter.title} - 已保存${getPercentage(index + 1, chapterList.size)} [${chapter.num}/${chapterList.size}]")
+                println("${chapter.title} - 已保存${getPercentage(index + 1, chapterElements.size)} [${chapter.num}/${chapterElements.size}]")
             }
         }
     }
