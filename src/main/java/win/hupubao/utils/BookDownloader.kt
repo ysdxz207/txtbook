@@ -19,9 +19,10 @@ object BookDownloader {
     val USER_AGENT = "Mozilla/5.0 (iPhone; CPU iPhone OS 12_1_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.0 Mobile/15E148 Safari/604.1"
     val TIMEOUT = 5000
 
-    val BASE_URL = "https://m.x23wxw.com"
     val URI = "/0/122/"
     val OUT_PATH = "F:/book.txt"
+
+    var uri: String = ""
 
     fun request(url: String): Document {
         return Page.create().userAgent(USER_AGENT).readTimeout(TIMEOUT).retryTimes(6).request(url, null, Connection.Method.GET).parse()
@@ -150,15 +151,13 @@ object BookDownloader {
     fun getPercentage(a: Int, b: Int): String {
         return (String.format("%.2f", a.toDouble().div(b) * 100).toDouble()).toString() + "%"
     }
-
-    fun urlToUri(url: String): String {
-        return url.substring()
-    }
     fun tryToParse(url: String?): TryParseResult {
         val tryParseResult = TryParseResult()
         if (url.isNullOrEmpty()) {
             error("章节目录地址不正确")
         }
+
+        uri = url.substring(url.indexOf("/"))
 
 
         val chapterElements = parseChapterElements(url)
