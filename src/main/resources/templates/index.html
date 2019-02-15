@@ -9,29 +9,31 @@
 <body>
 <div th:include="/templates/public.html :: public_static"></div>
 
-<div class="header" th:text="|证书生成器 - ${env}|"></div>
-<div class="db-url" th:text="|当前数据库连接地址：${dbUrl}|"></div>
+<div class="header" th:text="TXTBOOK"></div>
 <div class="main">
-    <div class="merchant">
-        <div class="merchant-search layui-row">
+    <div class="left">
+        <div class="left-search layui-row">
             <div class="layui-col-md9">
                 <input placeholder="章节列表地址" class="layui-input input-keywords"/>
             </div>
             <div class="layui-col-md3">
-                <button class="layui-btn layui-btn-normal btn-search" type="button">搜索</button>
+                <button class="layui-btn layui-btn-normal btn-parse" type="button">解析</button>
             </div>
         </div>
-        <ul id="view-merchant-list" class="merchant-list"></ul>
+        <ul id="view-left-list" class="left-list"></ul>
+    </div>
+    <div class="history">
+        <ul id="view-history-list" class="history-list"></ul>
     </div>
 </div>
 
 <div id="dialog_generate" class="layui-row" style="display: none">
     <form class="layui-form layui-col-md10">
-        <input type="hidden" id="cashier_id"/>
+        <input type="hidden" id="history_id"/>
         <div class="layui-form-item">
             <label class="layui-form-label">门店</label>
             <div class="layui-input-block">
-                <input type="text" class="layui-input" readonly id="cashier_name"/>
+                <input type="text" class="layui-input" readonly id="history_name"/>
             </div>
         </div>
         <div class="layui-form-item">
@@ -54,10 +56,10 @@
     </form>
 </div>
 
-<script id="merchantList" type="text/html">
+<script id="leftList" type="text/html">
     {{# layui.each(d.list, function(index, item){ }}
     <li>
-        <span title="{{item.merchantname}}" data-id="{{item.id}}">{{ item.merchantname }}</span>
+        <span title="{{item.leftname}}" data-id="{{item.id}}">{{ item.leftname }}</span>
     </li>
     {{# }); }}
 
@@ -65,7 +67,7 @@
     无数据
     {{# } }}
 </script>
-<script id="cashierList" type="text/html">
+<script id="historyList" type="text/html">
     {{# layui.each(d.list, function(index, item){ }}
     <li>
         <span title="{{item.name}}" data-id="{{item.id}}">{{ item.name }}</span>
@@ -91,8 +93,8 @@
                     keywords: keywords
                 },
                 success: function (data) {
-                    var getTpl = merchantList.innerHTML,
-                        view = document.querySelector('#view-merchant-list')
+                    var getTpl = leftList.innerHTML,
+                        view = document.querySelector('#view-left-list')
                     laytpl(getTpl).render(data, function (html) {
                         view.innerHTML = html
                     })
@@ -106,25 +108,25 @@
             }
         })
 
-        $('.btn-search').on('click', function () {
+        $('.btn-parse').on('click', function () {
             doSearch();
         })
 
-        $(document).on('click', '.merchant-list li', function () {
+        $(document).on('click', '.left-list li', function () {
             var _this = $(this)
-            $('#merchant_name').val(_this.text())
+            $('#left_name').val(_this.text())
             var id = _this.find('span').data('id')
             // 选中
             _this.addClass('selected')
             $.ajax({
                 type: 'POST',
-                url: '/cashierList',
+                url: '/historyList',
                 data: {
-                    merchantId: id
+                    leftId: id
                 },
                 success: function (data) {
-                    var getTpl = cashierList.innerHTML,
-                        view = document.querySelector('#view-cashier-list')
+                    var getTpl = historyList.innerHTML,
+                        view = document.querySelector('#view-history-list')
                     laytpl(getTpl).render(data, function (html) {
                         view.innerHTML = html
                     })
@@ -133,12 +135,12 @@
             })
         })
 
-        $(document).on('click', '.cashier-list li', function () {
+        $(document).on('click', '.history-list li', function () {
             var _this = $(this)
             var id = _this.find('span').data('id')
             $.ajax({
                 type: 'POST',
-                url: '/cashier',
+                url: '/history',
                 data: {
                     id: id
                 },
@@ -151,8 +153,8 @@
                     }
                     $('#private_key').val(data.privateKey)
                     $('#public_key').val(data.publicKey)
-                    $('#cashier_id').val(data.id)
-                    $('#cashier_name').val(data.name)
+                    $('#history_id').val(data.id)
+                    $('#history_name').val(data.name)
 
 
                     layer.open({
@@ -172,13 +174,13 @@
                 title: '请输入生成证书确认密码'
             }, function(value, index, elem){
                 var indexLoad = layer.load()
-                var cashierId = $('#cashier_id').val()
+                var historyId = $('#history_id').val()
                 layer.close(index);
                 $.ajax({
                     type: 'POST',
                     url: '/regenerateCert',
                     data: {
-                        id: cashierId,
+                        id: historyId,
                         confirmPassword: value
                     },
                     success: function (result) {
@@ -189,8 +191,8 @@
                         }
                         $('#private_key').val(result.data.privateKey)
                         $('#public_key').val(result.data.publicKey)
-                        $('#cashier_id').val(result.data.id)
-                        $('#cashier_name').val(result.data.name)
+                        $('#history_id').val(result.data.id)
+                        $('#history_name').val(result.data.name)
                         layer.msg('证书已重新生成')
                     },
                     error: function () {

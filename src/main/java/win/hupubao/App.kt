@@ -6,7 +6,7 @@ import io.javalin.staticfiles.Location
 
 fun main(args: Array<String>) {
     val app = Javalin.create().apply {
-        enableStaticFiles("static", Location.EXTERNAL)
+        enableStaticFiles("static")
     }.start(7000)
 
 
