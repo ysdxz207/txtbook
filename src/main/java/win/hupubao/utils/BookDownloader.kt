@@ -84,6 +84,7 @@ object BookDownloader {
         val title = e.text()
         val href = e.attr("href")
 
+        val url = getUrl(href)
         val chapter = Chapter()
 
         if (withContent) {
