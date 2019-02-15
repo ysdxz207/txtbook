@@ -1,7 +1,7 @@
 package win.hupubao
 
 import io.javalin.Javalin
-import io.javalin.staticfiles.Location
+import win.hupubao.utils.BookDownloader
 
 
 fun main(args: Array<String>) {
@@ -12,5 +12,9 @@ fun main(args: Array<String>) {
 
     app.get("/") { ctx ->
         ctx.render("/templates/index.html", mapOf("env" to "John", "dbUrl" to "Doe"))
+    }
+
+    app.get("/try") { ctx ->
+        ctx.json(BookDownloader.tryToParse(ctx.queryParam("url", "")))
     }
 }

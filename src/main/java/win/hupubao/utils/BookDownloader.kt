@@ -6,15 +6,13 @@ import org.jsoup.Connection
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import win.hupubao.beans.Chapter
+import win.hupubao.beans.TryParseResult
 import win.hupubao.common.http.Page
 import java.io.File
-import kotlin.collections.HashMap
 import kotlin.collections.distinctBy
 import kotlin.collections.filter
-import kotlin.collections.forEach
 import kotlin.collections.forEachIndexed
 import kotlin.collections.joinToString
-import kotlin.collections.set
 
 object BookDownloader {
 
@@ -54,6 +52,7 @@ object BookDownloader {
         return parseChapterPageContent(request(url))
     }
 
+
     fun parseChapterPageContent(document: Document): String {
         val e = document.select("div").filter { !it.textNodes().isEmpty() && it.textNodes().joinToString { it.text() }.length > 50 }[0]
         e.select("p").remove()
@@ -61,13 +60,9 @@ object BookDownloader {
         return e.textNodes().filter { !it.isBlank }.joinToString(separator = "\n", transform = { "\t" + it.text().trim() })
     }
 
-    fun downloadBook(uri: String) {
-        val file = File(OUT_PATH)
-        if (file.exists()) {
-            file.delete()
-        }
+    fun parseChapterElements(url: String): List<Element> {
 
-        val document = request("$BASE_URL$uri")
+        val document = request(url)
 
         // 获取章节a标签列表
         var chapterElements = document.select("dd>a").distinctBy { it.attr("href") }
@@ -82,37 +77,51 @@ object BookDownloader {
             error("未能获取到章节列表")
         }
 
-        chapterElements = chapterElements.filter { !it.text().contains("页面底部") && !it.text().contains("页面顶部") }
-        val map = HashMap<Int, Element>()
+        return chapterElements.filter { !it.text().contains("页面底部") && !it.text().contains("页面顶部") }
+    }
 
-        chapterElements.forEachIndexed { index, a ->
-            map[index + 1] = a
+    fun parseChapterInfo(num: Int, e: Element, withContent: Boolean): Chapter {
+        val title = e.text()
+        val href = e.attr("href")
+
+        val chapter = Chapter()
+
+        if (withContent) {
+            val content = parseChapterContent(url)
+            chapter.content = content
         }
+
+        chapter.title = title
+        chapter.url = url
+        chapter.num = num
+        return chapter
+    }
+
+    fun getUrl(urx: String): String {
+        return when {
+            urx.startsWith("/") -> BASE_URL + urx
+            urx.startsWith("http") -> urx
+            else -> "$BASE_URL$URI/$urx"
+        }
+    }
+
+    fun downloadBook(uri: String) {
+        val file = File(OUT_PATH)
+        if (file.exists()) {
+            file.delete()
+        }
+
+        val chapterElements = parseChapterElements(uri)
 
         val jobs = mutableListOf<Job>()
 
         val chapters = mutableListOf<Chapter>()
 
         runBlocking {
-            map.entries.forEach{ entry ->
+            chapterElements.forEachIndexed { index, e ->
 
                 val job = GlobalScope.launch {
-                    val title = entry.value.text()
-                    val href = entry.value.attr("href")
-                    val url = when {
-                        href.startsWith("/") -> BASE_URL + href
-                        href.startsWith("http") -> href
-                        else -> "$BASE_URL$URI/$href"
-                    }
-
-                    val content = parseChapterContent(url)
-
-                    val chapter = Chapter()
-                    chapter.title = title
-                    chapter.url = url
-                    chapter.content = content
-                    chapter.num = entry.key
-                    chapters.add(chapter)
+                    chapters.add(parseChapterInfo(index + 1, e, true))
                 }
                 jobs.add(job)
             }
@@ -130,7 +139,7 @@ object BookDownloader {
             }
 
             chapters.sortBy { it.num }
-            chapters.forEachIndexed{ index, chapter ->
+            chapters.forEachIndexed { index, chapter ->
                 FileUtils.writeStringToFile(file, chapter.title + "\n\n" + chapter.content + "\n\n\n", "UTF-8", true)
                 println("${chapter.title} - 已保存${getPercentage(index + 1, chapterElements.size)} [${chapter.num}/${chapterElements.size}]")
             }
@@ -139,6 +148,31 @@ object BookDownloader {
 
     fun getPercentage(a: Int, b: Int): String {
         return (String.format("%.2f", a.toDouble().div(b) * 100).toDouble()).toString() + "%"
+    }
+
+    fun urlToUri(url: String): String {
+        return url.substring()
+    }
+    fun tryToParse(url: String?): TryParseResult {
+        val tryParseResult = TryParseResult()
+        if (url.isNullOrEmpty()) {
+            error("章节目录地址不正确")
+        }
+
+
+        val chapterElements = parseChapterElements(url)
+
+        chapterElements.forEachIndexed { index, e ->
+            tryParseResult.chapterList.add(parseChapterInfo(index + 1, e, false))
+        }
+
+        val previewChapter = tryParseResult.chapterList[0]
+        val content = parseChapterContent(previewChapter.url!!)
+        previewChapter.content = content
+
+        tryParseResult.previewChapter = previewChapter
+
+        return tryParseResult
     }
 
     @JvmStatic
