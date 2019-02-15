@@ -1,0 +1,100 @@
+html,
+body {
+    height: 100%;
+    margin: 0;
+    display: flex;
+    flex-flow: column;
+}
+
+.header {
+    width: 90%;
+    margin: 0 auto;
+    height: 40px;
+    line-height: 40px;
+    color: #787878;
+    font-size: 28px;
+    font-weight: bold;
+    text-align: center;
+    border-bottom: 1px solid #DFDFDF;
+}
+
+.db-url {
+    margin: 0 auto;
+    min-height: 32px;
+    line-height: 32px;
+    color: #f5bb14;
+    font-size: 16px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.main {
+    width: 90%;
+    height: 100%;
+    margin: 10px auto;
+    display: flex;
+    flex-flow: row;
+}
+
+.merchant,.cashier {
+    display: flex;
+    flex-flow: column;
+    height: 100%;
+    flex-grow: 1;
+}
+
+.merchant .merchant-search {
+    flex: 0 1 auto;
+}
+
+.merchant .btn-search {
+    width: 100%;
+
+}
+
+.merchant .merchant-list,.cashier .cashier-list {
+    margin-top: 10px;
+    flex: 1 1 auto;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+ul li {
+    list-style: none;
+    height: 28px;
+    line-height: 28px;
+    padding-left: 4px;
+    border-bottom: 1px solid #FFFFFF;
+    cursor: pointer;
+    white-space: nowrap; /*强制不换行*/
+    text-overflow: ellipsis; /*省略号*/
+}
+
+.merchant ul li {
+    background: #caf7dd;
+}
+
+.merchant ul li:hover {
+    background: #00F7DE;
+}
+
+
+.cashier {
+    margin-left: 10px;
+    flex-grow: 11;
+}
+
+.cashier .cashier-list {
+}
+
+.cashier ul li {
+    background: #f7deec;
+}
+
+.cashier ul li:hover {
+    background: #f786f0;
+}
+
+#dialog_generate {
+    padding-top: 10px;
+}

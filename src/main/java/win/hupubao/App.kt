@@ -1,14 +1,16 @@
 package win.hupubao
 
-import javafx.stage.Stage
-import tornadofx.App
-import win.hupubao.views.MainView
+import io.javalin.Javalin
+import io.javalin.staticfiles.Location
 
-class App : App() {
-    override val primaryView = MainView::class
 
-    override fun start(stage: Stage) {
-        stage.icons += resources.image("/icon/icon.png")
-        super.start(stage)
+fun main(args: Array<String>) {
+    val app = Javalin.create().apply {
+        enableStaticFiles("static", Location.EXTERNAL)
+    }.start(7000)
+
+
+    app.get("/") { ctx ->
+        ctx.render("/templates/index.html", mapOf("env" to "John", "dbUrl" to "Doe"))
     }
 }
