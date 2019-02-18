@@ -32,9 +32,7 @@ body {
     flex-flow: row;
 }
 
-.btn-parse {
-    width: 100%;
-}
+
 
 .left,.preview,.history {
     display: flex;
@@ -72,11 +70,15 @@ ul li {
 }
 
 .left ul li {
-    background: #caf7dd;
+    background-color: #caf7dd;
 }
 
 .left ul li:hover {
-    background: #00F7DE;
+    background-color: #00F7DE;
+}
+
+.left ul li.selected {
+    background-color: #77f7a8;
 }
 
 
@@ -112,3 +114,7 @@ ul li {
     height: 100%;
     background-color: #f7deec;
 }
+
+.btn-pack {
+    float: right;
+ }

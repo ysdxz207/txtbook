@@ -20,7 +20,7 @@ object BookDownloader {
     val USER_AGENT = "Mozilla/5.0 (iPhone; CPU iPhone OS 12_1_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.0 Mobile/15E148 Safari/604.1"
     val TIMEOUT = 5000
 
-    val OUT_PATH = "F:/book.txt"
+    val OUT_PATH = "/files/txtbook/book.txt"
 
     var domain: String = ""
 

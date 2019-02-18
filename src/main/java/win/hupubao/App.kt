@@ -21,4 +21,8 @@ fun main(args: Array<String>) {
     app.get("/content") { ctx ->
         ctx.json(BookDownloader.parseChapterContent(ctx.queryParam("url", "")!!))
     }
+
+    app.get("/pack") { ctx ->
+        ctx.json(BookDownloader.downloadBook(ctx.queryParam("url", "")!!))
+    }
 }

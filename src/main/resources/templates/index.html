@@ -16,7 +16,8 @@
             <input placeholder="章节目录地址" class="layui-input input-url"/>
         </div>
         <div class="layui-col-md3">
-            <button class="layui-btn layui-btn-normal btn-parse" type="button">解析</button>
+            <button class="layui-btn layui-btn-normal btn-parse" type="button">解析预览</button>
+            <button class="layui-btn layui-btn-warm btn-pack" type="button">打包成TXT</button>
         </div>
     </div>
     <div class="content">
@@ -30,14 +31,10 @@
         </div>
         <div class="history">
             <ul id="view-history-list">
-                <li>圣墟.txt</li>
-                <li>圣墟.txt</li>
-                <li>圣墟.txt</li>
-                <li>圣墟.txt</li>
-                <li>圣墟.txt</li>
-                <li>圣墟.txt</li>
-                <li>圣墟.txt</li>
-                <li>圣墟.txt</li>
+                <li>锤子.txt</li>
+                <li>锤子.txt</li>
+                <li>锤子.txt</li>
+                <li>锤子.txt</li>
             </ul>
         </div>
     </div>
@@ -98,12 +95,33 @@
             getChapterList();
         })
 
+        $('.btn-pack').on('click', function () {
+            const indexLoad = layer.load()
+            const url = $('.input-url').val();
+            $.ajax({
+                type: 'GET',
+                url: '/pack',
+                data: {
+                    url: url
+                },
+                success: function (data) {
+
+
+                    layer.close(indexLoad)
+                },
+                error: function (e) {
+                    layer.close(indexLoad)
+                }
+            })
+        })
+
         $(document).on('click', '.left-list li', function () {
             const indexLoad = layer.load()
             const _this = $(this);
             $('#left_name').val(_this.text())
             const url = _this.find('span').data('url');
             // 选中
+            $('.left-list li').removeClass('selected')
             _this.addClass('selected')
             $.ajax({
                 type: 'GET',
@@ -115,6 +133,7 @@
                     const view = $('#preview_content');
                     view.text(data)
                     view.fadeIn(500)
+
                     layer.close(indexLoad)
                 },
                 error: function (e) {
