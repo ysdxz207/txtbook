@@ -11,197 +11,119 @@
 
 <div class="header" th:text="TXTBOOK"></div>
 <div class="main">
-    <div class="left">
-        <div class="left-search layui-row">
-            <div class="layui-col-md9">
-                <input placeholder="章节目录地址" class="layui-input input-keywords"/>
-            </div>
-            <div class="layui-col-md3">
-                <button class="layui-btn layui-btn-normal btn-parse" type="button">解析</button>
-            </div>
+    <div class="top-bar layui-row">
+        <div class="layui-col-md9">
+            <input placeholder="章节目录地址" class="layui-input input-url"/>
         </div>
-        <ul id="view-left-list" class="left-list"></ul>
+        <div class="layui-col-md3">
+            <button class="layui-btn layui-btn-normal btn-parse" type="button">解析</button>
+        </div>
     </div>
-    <div class="history">
-        <ul id="view-history-list" class="history-list"></ul>
+    <div class="content">
+        <div class="left">
+            <ul id="view-left-list" class="left-list"></ul>
+        </div>
+        <div class="preview">
+            <pre id="preview_content">
+
+            </pre>
+        </div>
+        <div class="history">
+            <ul id="view-history-list">
+                <li>圣墟.txt</li>
+                <li>圣墟.txt</li>
+                <li>圣墟.txt</li>
+                <li>圣墟.txt</li>
+                <li>圣墟.txt</li>
+                <li>圣墟.txt</li>
+                <li>圣墟.txt</li>
+                <li>圣墟.txt</li>
+            </ul>
+        </div>
     </div>
+
 </div>
 
-<div id="dialog_generate" class="layui-row" style="display: none">
-    <form class="layui-form layui-col-md10">
-        <input type="hidden" id="history_id"/>
-        <div class="layui-form-item">
-            <label class="layui-form-label">门店</label>
-            <div class="layui-input-block">
-                <input type="text" class="layui-input" readonly id="history_name"/>
-            </div>
-        </div>
-        <div class="layui-form-item">
-            <label class="layui-form-label">私钥</label>
-            <div class="layui-input-block">
-                <textarea class="layui-textarea" rows="6" id="private_key" readonly></textarea>
-            </div>
-        </div>
-        <div class="layui-form-item">
-            <label class="layui-form-label">公钥</label>
-            <div class="layui-input-block">
-                <textarea class="layui-textarea" rows="6" id="public_key" readonly></textarea>
-            </div>
-        </div>
-        <div class="layui-form-item">
-            <div class="layui-input-block">
-                <button type="button" class="layui-btn layui-btn-warm" id="btn-regenerate">重新生成证书</button>
-            </div>
-        </div>
-    </form>
-</div>
 
 <script id="leftList" type="text/html">
-    {{# layui.each(d.list, function(index, item){ }}
+    {{# layui.each(d, function(index, item){ }}
     <li>
-        <span title="{{item.leftname}}" data-id="{{item.id}}">{{ item.leftname }}</span>
+        <span title="{{item.title}}" data-url="{{item.url}}">{{ item.title }}</span>
     </li>
     {{# }); }}
 
-    {{# if(d.list.length === 0){ }}
-    无数据
-    {{# } }}
-</script>
-<script id="historyList" type="text/html">
-    {{# layui.each(d.list, function(index, item){ }}
-    <li>
-        <span title="{{item.name}}" data-id="{{item.id}}">{{ item.name }}</span>
-    </li>
-    {{# }); }}
-
-    {{# if(d.list.length === 0){ }}
+    {{# if(d.length === 0){ }}
     无数据
     {{# } }}
 </script>
 <script>
     layui.use(['jquery', 'laytpl', 'layer'], function () {
-        var $ = layui.$,
+        const $ = layui.$,
             laytpl = layui.laytpl,
             layer = layui.layer;
 
-        function doSearch() {
-            var keywords = $('.input-keywords').val()
+        function getChapterList() {
+            const indexLoad = layer.load()
+            const url = $('.input-url').val();
             $.ajax({
-                type: 'POST',
-                url: '/search',
+                type: 'GET',
+                url: '/chapters',
                 data: {
-                    keywords: keywords
+                    url: url
                 },
                 success: function (data) {
-                    var getTpl = leftList.innerHTML,
-                        view = document.querySelector('#view-left-list')
-                    laytpl(getTpl).render(data, function (html) {
-                        view.innerHTML = html
-                    })
 
+                    if (data.length > 0) {
+                        const getTpl = leftList.innerHTML,
+                            view = document.querySelector('#view-left-list');
+                        laytpl(getTpl).render(data, function (html) {
+                            view.innerHTML = html
+                        })
+                    }
+
+                    layer.close(indexLoad)
+                },
+                error: function (e) {
+                    layer.close(indexLoad)
                 }
             })
         }
-        $('.input-keywords').on('keyup', function (e) {
+        $('.input-url').on('keyup', function (e) {
             if (e.keyCode === 13) {
-                doSearch()
+                getChapterList()
             }
         })
 
         $('.btn-parse').on('click', function () {
-            doSearch();
+            getChapterList();
         })
 
         $(document).on('click', '.left-list li', function () {
-            var _this = $(this)
+            const indexLoad = layer.load()
+            const _this = $(this);
             $('#left_name').val(_this.text())
-            var id = _this.find('span').data('id')
+            const url = _this.find('span').data('url');
             // 选中
             _this.addClass('selected')
             $.ajax({
-                type: 'POST',
-                url: '/historyList',
+                type: 'GET',
+                url: '/content',
                 data: {
-                    leftId: id
+                    url: url
                 },
                 success: function (data) {
-                    var getTpl = historyList.innerHTML,
-                        view = document.querySelector('#view-history-list')
-                    laytpl(getTpl).render(data, function (html) {
-                        view.innerHTML = html
-                    })
-
+                    const view = $('#preview_content');
+                    view.text(data)
+                    view.fadeIn(500)
+                    layer.close(indexLoad)
+                },
+                error: function (e) {
+                    layer.close(indexLoad)
                 }
             })
         })
 
-        $(document).on('click', '.history-list li', function () {
-            var _this = $(this)
-            var id = _this.find('span').data('id')
-            $.ajax({
-                type: 'POST',
-                url: '/history',
-                data: {
-                    id: id
-                },
-                success: function (data) {
-                    if (!data) {
-                        if (!data) {
-                            layer.msg('出错啦！')
-                            return
-                        }
-                    }
-                    $('#private_key').val(data.privateKey)
-                    $('#public_key').val(data.publicKey)
-                    $('#history_id').val(data.id)
-                    $('#history_name').val(data.name)
 
-
-                    layer.open({
-                        title: '证书生成',
-                        type: 1,
-                        area: ['700px', '500px'],
-                        content: $('#dialog_generate')
-                    })
-                }
-            })
-
-        })
-
-        $('#btn-regenerate').on('click', function () {
-            layer.prompt({
-                formType: 1,
-                title: '请输入生成证书确认密码'
-            }, function(value, index, elem){
-                var indexLoad = layer.load()
-                var historyId = $('#history_id').val()
-                layer.close(index);
-                $.ajax({
-                    type: 'POST',
-                    url: '/regenerateCert',
-                    data: {
-                        id: historyId,
-                        confirmPassword: value
-                    },
-                    success: function (result) {
-                        layer.close(indexLoad);
-                        if (result.statusCode !== 200) {
-                            layer.msg(result.message)
-                            return
-                        }
-                        $('#private_key').val(result.data.privateKey)
-                        $('#public_key').val(result.data.publicKey)
-                        $('#history_id').val(result.data.id)
-                        $('#history_name').val(result.data.name)
-                        layer.msg('证书已重新生成')
-                    },
-                    error: function () {
-                        layer.close(index);
-                    }
-                })
-            })
-
-        })
     });
 </script>
 </body>

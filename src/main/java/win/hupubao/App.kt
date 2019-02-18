@@ -14,7 +14,11 @@ fun main(args: Array<String>) {
         ctx.render("/templates/index.html", mapOf("env" to "John", "dbUrl" to "Doe"))
     }
 
-    app.get("/try") { ctx ->
-        ctx.json(BookDownloader.tryToParse(ctx.queryParam("url", "")))
+    app.get("/chapters") { ctx ->
+        ctx.json(BookDownloader.getChapterList(ctx.queryParam("url", "")))
+    }
+
+    app.get("/content") { ctx ->
+        ctx.json(BookDownloader.parseChapterContent(ctx.queryParam("url", "")!!))
     }
 }

@@ -9,6 +9,7 @@ import win.hupubao.beans.Chapter
 import win.hupubao.beans.TryParseResult
 import win.hupubao.common.http.Page
 import java.io.File
+import java.net.URL
 import kotlin.collections.distinctBy
 import kotlin.collections.filter
 import kotlin.collections.forEachIndexed
@@ -19,10 +20,9 @@ object BookDownloader {
     val USER_AGENT = "Mozilla/5.0 (iPhone; CPU iPhone OS 12_1_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.0 Mobile/15E148 Safari/604.1"
     val TIMEOUT = 5000
 
-    val URI = "/0/122/"
     val OUT_PATH = "F:/book.txt"
 
-    var uri: String = ""
+    var domain: String = ""
 
     fun request(url: String): Document {
         return Page.create().userAgent(USER_AGENT).readTimeout(TIMEOUT).retryTimes(6).request(url, null, Connection.Method.GET).parse()
@@ -40,7 +40,7 @@ object BookDownloader {
 
             for (n in 2..pageCount) {
                 // 获取下一页地址
-                val nextPageUrl = BASE_URL + document.select("a").filter { it.text() == "下一页" }[0].attr("href")
+                val nextPageUrl = domain + document.select("a").filter { it.text() == "下一页" }[0].attr("href")
                 contentCurrent += parseChapterPageContent(nextPageUrl)
             }
             return contentCurrent
@@ -58,10 +58,11 @@ object BookDownloader {
         val e = document.select("div").filter { !it.textNodes().isEmpty() && it.textNodes().joinToString { it.text() }.length > 50 }[0]
         e.select("p").remove()
 
-        return e.textNodes().filter { !it.isBlank }.joinToString(separator = "\n", transform = { "\t" + it.text().trim() })
+        return e.textNodes().filter { !it.isBlank }.joinToString(separator = "\n", transform = { "    " + it.text().trim() })
     }
 
     fun parseChapterElements(url: String): List<Element> {
+        domain = getDomain(url)
 
         val document = request(url)
 
@@ -101,19 +102,24 @@ object BookDownloader {
 
     fun getUrl(urx: String): String {
         return when {
-            urx.startsWith("/") -> BASE_URL + urx
+            urx.startsWith("/") -> "$domain$urx"
             urx.startsWith("http") -> urx
-            else -> "$BASE_URL$URI/$urx"
+            else -> "$domain/$urx"
         }
     }
 
-    fun downloadBook(uri: String) {
+    fun getDomain(url: String): String {
+        return URL(url).protocol + "://" + URL(url).host
+    }
+
+    fun downloadBook(url: String) {
+
         val file = File(OUT_PATH)
         if (file.exists()) {
             file.delete()
         }
 
-        val chapterElements = parseChapterElements(uri)
+        val chapterElements = parseChapterElements(url)
 
         val jobs = mutableListOf<Job>()
 
@@ -151,33 +157,24 @@ object BookDownloader {
     fun getPercentage(a: Int, b: Int): String {
         return (String.format("%.2f", a.toDouble().div(b) * 100).toDouble()).toString() + "%"
     }
-    fun tryToParse(url: String?): TryParseResult {
-        val tryParseResult = TryParseResult()
+    fun getChapterList(url: String?): List<Chapter> {
         if (url.isNullOrEmpty()) {
             error("章节目录地址不正确")
         }
 
-        uri = url.substring(url.indexOf("/"))
-
-
+        val chapters = mutableListOf<Chapter>()
         val chapterElements = parseChapterElements(url)
 
         chapterElements.forEachIndexed { index, e ->
-            tryParseResult.chapterList.add(parseChapterInfo(index + 1, e, false))
+            chapters.add(parseChapterInfo(index + 1, e, false))
         }
 
-        val previewChapter = tryParseResult.chapterList[0]
-        val content = parseChapterContent(previewChapter.url!!)
-        previewChapter.content = content
-
-        tryParseResult.previewChapter = previewChapter
-
-        return tryParseResult
+        return chapters
     }
 
     @JvmStatic
     fun main(args: Array<String>) {
 
-        downloadBook(URI)
+        downloadBook("https://m.x23wxw.com/0/122/")
     }
 }
