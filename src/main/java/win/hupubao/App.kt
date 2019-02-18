@@ -2,6 +2,7 @@ package win.hupubao
 
 import io.javalin.Javalin
 import win.hupubao.utils.BookDownloader
+import win.hupubao.utils.HistoryUtils
 
 
 fun main(args: Array<String>) {
@@ -23,6 +24,11 @@ fun main(args: Array<String>) {
     }
 
     app.get("/pack") { ctx ->
-        ctx.json(BookDownloader.downloadBook(ctx.queryParam("url", "")!!))
+        ctx.json(BookDownloader.downloadBook(ctx.queryParam("url", "")!!,
+                ctx.queryParam("name", "")!!))
+    }
+
+    app.get("/history") { ctx ->
+        ctx.json(HistoryUtils.getHistory())
     }
 }

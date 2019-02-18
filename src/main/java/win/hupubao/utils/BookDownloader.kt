@@ -6,7 +6,7 @@ import org.jsoup.Connection
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import win.hupubao.beans.Chapter
-import win.hupubao.beans.TryParseResult
+import win.hupubao.beans.History
 import win.hupubao.common.http.Page
 import java.io.File
 import java.net.URL
@@ -20,7 +20,7 @@ object BookDownloader {
     val USER_AGENT = "Mozilla/5.0 (iPhone; CPU iPhone OS 12_1_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.0 Mobile/15E148 Safari/604.1"
     val TIMEOUT = 5000
 
-    val OUT_PATH = "/files/txtbook/book.txt"
+    val OUT_PATH = "/files/txtbook/"
 
     var domain: String = ""
 
@@ -112,51 +112,49 @@ object BookDownloader {
         return URL(url).protocol + "://" + URL(url).host
     }
 
-    fun downloadBook(url: String) {
+    fun downloadBook(url: String,
+                     name: String) {
+        GlobalScope.launch {
 
-        val file = File(OUT_PATH)
-        if (file.exists()) {
-            file.delete()
-        }
+            val file = File("$OUT_PATH$name.txt")
+            if (file.exists()) {
+                file.delete()
+            }
 
-        val chapterElements = parseChapterElements(url)
+            val chapterElements = parseChapterElements(url)
 
-        val jobs = mutableListOf<Job>()
+            val jobs = mutableListOf<Job>()
 
-        val chapters = mutableListOf<Chapter>()
+            val chapters = mutableListOf<Chapter>()
 
-        runBlocking {
-            chapterElements.forEachIndexed { index, e ->
+            runBlocking {
+                chapterElements.forEachIndexed { index, e ->
 
-                val job = GlobalScope.launch {
-                    chapters.add(parseChapterInfo(index + 1, e, true))
+                    launch {
+                        chapters.add(parseChapterInfo(index + 1, e, true))
+                        // 更新进度
+                        HistoryUtils.saveHistory(History(name, getPercentage(index + 1, chapterElements.size)))
+                    }
                 }
-                jobs.add(job)
-            }
 
-            jobs.forEachIndexed { index, job ->
-                runBlocking {
-                    job.join()
-                    println("已下载${getPercentage(index + 1, chapterElements.size)}")
+                if (chapters.isEmpty()) {
+                    return@runBlocking
                 }
-            }
 
-
-            if (chapters.isEmpty()) {
-                return@runBlocking
-            }
-
-            chapters.sortBy { it.num }
-            chapters.forEachIndexed { index, chapter ->
-                FileUtils.writeStringToFile(file, chapter.title + "\n\n" + chapter.content + "\n\n\n", "UTF-8", true)
-                println("${chapter.title} - 已保存${getPercentage(index + 1, chapterElements.size)} [${chapter.num}/${chapterElements.size}]")
+                chapters.sortBy { it.num }
+                chapters.forEachIndexed { index, chapter ->
+                    FileUtils.writeStringToFile(file, chapter.title + "\n\n" + chapter.content + "\n\n\n", "UTF-8", true)
+                    // 更新保存进度
+//                HistoryUtils.saveHistory(History(name, getPercentage(index + 1, chapterElements.size)))
+                }
             }
         }
     }
 
-    fun getPercentage(a: Int, b: Int): String {
-        return (String.format("%.2f", a.toDouble().div(b) * 100).toDouble()).toString() + "%"
+    fun getPercentage(a: Int, b: Int): Double {
+        return String.format("%.2f", a.toDouble().div(b) * 100).toDouble()
     }
+
     fun getChapterList(url: String?): List<Chapter> {
         if (url.isNullOrEmpty()) {
             error("章节目录地址不正确")
@@ -172,9 +170,11 @@ object BookDownloader {
         return chapters
     }
 
+
     @JvmStatic
     fun main(args: Array<String>) {
 
-        downloadBook("https://m.x23wxw.com/0/122/")
+        downloadBook("https://m.x23wxw.com/0/122/", "book")
     }
+
 }

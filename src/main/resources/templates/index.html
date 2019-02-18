@@ -31,10 +31,6 @@
         </div>
         <div class="history">
             <ul id="view-history-list">
-                <li>锤子.txt</li>
-                <li>锤子.txt</li>
-                <li>锤子.txt</li>
-                <li>锤子.txt</li>
             </ul>
         </div>
     </div>
@@ -46,6 +42,18 @@
     {{# layui.each(d, function(index, item){ }}
     <li>
         <span title="{{item.title}}" data-url="{{item.url}}">{{ item.title }}</span>
+    </li>
+    {{# }); }}
+
+    {{# if(d.length === 0){ }}
+    无数据
+    {{# } }}
+</script>
+
+<script id="historyList" type="text/html">
+    {{# layui.each(d, function(index, item){ }}
+    <li>
+        <span title="{{item.name}}" data-url="{{item.progress}}">{{ item.name }} - {{ item.progress }}%</span>
     </li>
     {{# }); }}
 
@@ -96,23 +104,36 @@
         })
 
         $('.btn-pack').on('click', function () {
-            const indexLoad = layer.load()
             const url = $('.input-url').val();
-            $.ajax({
-                type: 'GET',
-                url: '/pack',
-                data: {
-                    url: url
-                },
-                success: function (data) {
+
+            if (!url) {
+
+                return
+            }
+            layer.prompt({
+                formType: 0,
+                title: '书名'
+            }, function(value, index, elem){
+                const indexLoad = layer.load()
+                layer.close(index);
+                $.ajax({
+                    type: 'GET',
+                    url: '/pack',
+                    data: {
+                        url: url,
+                        name: value
+                    },
+                    success: function (data) {
 
 
-                    layer.close(indexLoad)
-                },
-                error: function (e) {
-                    layer.close(indexLoad)
-                }
+                        layer.close(indexLoad)
+                    },
+                    error: function (e) {
+                        layer.close(indexLoad)
+                    }
+                })
             })
+
         })
 
         $(document).on('click', '.left-list li', function () {
@@ -142,6 +163,26 @@
             })
         })
 
+
+        // 加载历史记录
+        $.ajax({
+            type: 'GET',
+            url: '/history',
+            success: function (data) {
+                if (data.length > 0) {
+                    const getTpl = historyList.innerHTML,
+                        view = document.querySelector('#view-history-list');
+                    laytpl(getTpl).render(data, function (html) {
+                        view.innerHTML = html
+                    })
+                }
+
+                layer.close(indexLoad)
+            },
+            error: function (e) {
+                layer.close(indexLoad)
+            }
+        })
 
     });
 </script>
