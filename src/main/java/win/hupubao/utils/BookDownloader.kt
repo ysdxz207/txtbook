@@ -55,7 +55,7 @@ object BookDownloader {
 
 
     fun parseChapterPageContent(document: Document): String {
-        val e = document.select("div").filter { !it.textNodes().isEmpty() && it.textNodes().joinToString { it.text() }.length > 50 }[0]
+        val e = document.select("div").filter { !it.textNodes().isEmpty() && it.textNodes().joinToString { it.text().trim() }.length > 50 }[0]
         e.select("p").remove()
 
         return e.textNodes().filter { !it.isBlank }.joinToString(separator = "\n", transform = { "    " + it.text().trim() })
