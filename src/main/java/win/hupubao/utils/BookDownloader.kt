@@ -135,16 +135,17 @@ object BookDownloader {
 
                     val job = GlobalScope.launch {
                         chapters.add(parseChapterInfo(index + 1, e, true))
-                        // 更新进度
-                        HistoryUtils.saveHistory(History(name, getPercentage(index + 1, chapterElements.size)))
                     }
                     jobs.add(job)
                 }
 
-
-                while (!jobs.all { it.isCompleted }) {
+                jobs.forEachIndexed { index, job ->
+                    runBlocking {
+                        job.join()
+                        // 更新进度
+                        HistoryUtils.saveHistory(History(name, getPercentage(index + 1, chapterElements.size)))
+                    }
                 }
-
 
                 if (chapters.isEmpty()) {
                     return@runBlocking
@@ -153,8 +154,6 @@ object BookDownloader {
                 chapters.sortBy { it.num }
                 chapters.forEachIndexed { index, chapter ->
                     FileUtils.writeStringToFile(file, chapter.title + "\n\n" + chapter.content + "\n\n\n", "UTF-8", true)
-                    // 更新保存进度
-//                HistoryUtils.saveHistory(History(name, getPercentage(index + 1, chapterElements.size)))
                 }
             }
         }

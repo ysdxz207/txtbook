@@ -22,15 +22,12 @@ object HistoryUtils {
         }
     }
 
+    @Synchronized
     fun saveHistory(history: History) {
-
-
         val configs = getHistory()
         configs.removeIf { (it as JSONObject).getString("name") == history.name }
         configs.add(history)
-        synchronized(this) {
-            file.writeText(configs.toJSONString(), encoding)
-        }
+        file.writeText(configs.toJSONString(), encoding)
     }
 
     fun getHistory(): JSONArray {

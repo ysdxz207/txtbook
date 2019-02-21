@@ -125,6 +125,7 @@
                     },
                     success: function (data) {
 
+                        setInterval(loadHistory, 1200)
 
                         layer.close(indexLoad)
                     },
@@ -164,25 +165,27 @@
         })
 
 
-        // 加载历史记录
-        $.ajax({
-            type: 'GET',
-            url: '/history',
-            success: function (data) {
-                if (data.length > 0) {
-                    const getTpl = historyList.innerHTML,
-                        view = document.querySelector('#view-history-list');
-                    laytpl(getTpl).render(data, function (html) {
-                        view.innerHTML = html
-                    })
-                }
+        function loadHistory() {
+            // 加载历史记录
+            $.ajax({
+                type: 'GET',
+                url: '/history',
+                success: function (data) {
+                    if (data.length > 0) {
+                        const getTpl = historyList.innerHTML,
+                            view = document.querySelector('#view-history-list');
+                        laytpl(getTpl).render(data, function (html) {
+                            view.innerHTML = html
+                        })
+                    }
 
-                layer.close(indexLoad)
-            },
-            error: function (e) {
-                layer.close(indexLoad)
-            }
-        })
+                },
+                error: function (e) {
+                }
+            })
+        }
+
+        setInterval(loadHistory, 1200)
 
     });
 </script>
