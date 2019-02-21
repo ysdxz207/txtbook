@@ -117,6 +117,9 @@ object BookDownloader {
         GlobalScope.launch {
 
             val file = File("$OUT_PATH$name.txt")
+            if (!file.parentFile.exists()) {
+                file.parentFile.mkdirs()
+            }
             if (file.exists()) {
                 file.delete()
             }
@@ -130,12 +133,18 @@ object BookDownloader {
             runBlocking {
                 chapterElements.forEachIndexed { index, e ->
 
-                    launch {
+                    val job = GlobalScope.launch {
                         chapters.add(parseChapterInfo(index + 1, e, true))
                         // 更新进度
                         HistoryUtils.saveHistory(History(name, getPercentage(index + 1, chapterElements.size)))
                     }
+                    jobs.add(job)
                 }
+
+
+                while (!jobs.all { it.isCompleted }) {
+                }
+
 
                 if (chapters.isEmpty()) {
                     return@runBlocking

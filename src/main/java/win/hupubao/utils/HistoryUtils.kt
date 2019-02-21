@@ -8,7 +8,7 @@ import java.io.File
 
 object HistoryUtils {
 
-    val encoding = "UTF-8"
+    val encoding = Charsets.UTF_8
     val path = System.getProperty("user.dir") + "/history/download.history"
     var file: File
 
@@ -28,7 +28,9 @@ object HistoryUtils {
         val configs = getHistory()
         configs.removeIf { (it as JSONObject).getString("name") == history.name }
         configs.add(history)
-        FileUtils.write(file, configs.toJSONString(), encoding, false)
+        synchronized(this) {
+            file.writeText(configs.toJSONString(), encoding)
+        }
     }
 
     fun getHistory(): JSONArray {
