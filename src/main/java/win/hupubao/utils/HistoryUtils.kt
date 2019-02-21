@@ -1,7 +1,9 @@
 package win.hupubao.utils
 
+import com.alibaba.fastjson.JSON
 import com.alibaba.fastjson.JSONArray
 import com.alibaba.fastjson.JSONObject
+import com.alibaba.fastjson.serializer.SerializerFeature
 import org.apache.commons.io.FileUtils
 import win.hupubao.beans.History
 import java.io.File
@@ -27,7 +29,7 @@ object HistoryUtils {
         val configs = getHistory()
         configs.removeIf { (it as JSONObject).getString("name") == history.name }
         configs.add(history)
-        file.writeText(configs.toJSONString(), encoding)
+        file.writeText(JSON.toJSONString(configs, SerializerFeature.PrettyFormat), encoding)
     }
 
     fun getHistory(): JSONArray {
