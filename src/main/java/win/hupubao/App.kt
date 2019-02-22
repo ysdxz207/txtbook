@@ -12,7 +12,7 @@ fun main(args: Array<String>) {
 
 
     app.get("/") { ctx ->
-        ctx.render("/templates/index.html", mapOf("env" to "John", "dbUrl" to "Doe"))
+        ctx.render("/templates/index.html")
     }
 
     app.get("/chapters") { ctx ->
