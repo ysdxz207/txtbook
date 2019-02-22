@@ -3,8 +3,6 @@ package win.hupubao
 import io.javalin.Javalin
 import win.hupubao.utils.BookDownloader
 import win.hupubao.utils.HistoryUtils
-import java.io.File
-import java.io.FileInputStream
 
 
 fun main(args: Array<String>) {
