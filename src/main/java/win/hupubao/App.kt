@@ -8,7 +8,7 @@ import win.hupubao.utils.HistoryUtils
 fun main(args: Array<String>) {
     val app = Javalin.create().apply {
         enableStaticFiles("static")
-    }.start(7000)
+    }.start(8005)
 
 
     app.get("/") { ctx ->
