@@ -191,4 +191,18 @@ object BookDownloader {
         downloadBook("https://m.x23wxw.com/0/122/", "book")
     }
 
+    fun del(name: String): Boolean {
+
+        return try {
+            HistoryUtils.del(name)
+            val file = getBookFile(name)
+            if (file.exists()) {
+                file.delete()
+            }
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }
+
 }

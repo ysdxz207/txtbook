@@ -40,5 +40,11 @@ object HistoryUtils {
         }
         return configs
     }
+
+    fun del(name: String) {
+        val historys = getHistory()
+        historys.removeIf { (it as JSONObject).getString("name") == name }
+        file.writeText(JSON.toJSONString(historys, SerializerFeature.PrettyFormat), encoding)
+    }
 }
 

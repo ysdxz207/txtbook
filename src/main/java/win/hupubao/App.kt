@@ -39,4 +39,9 @@ fun main(args: Array<String>) {
         val inputStream = file.inputStream()
         ctx.res.outputStream.write(inputStream.readBytes())
     }
+
+    app.get("/del") { ctx ->
+        ctx.json(BookDownloader.del(ctx.queryParam("name", "")!!))
+    }
+
 }
