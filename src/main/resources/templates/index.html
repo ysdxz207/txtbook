@@ -56,9 +56,9 @@
         <span data-url="{{item.progress}}" style="line-height: 28px;margin-right: 8px;">{{ item.name }} - {{ item.progress }}%
             {{# if(item.progress === 100){ }}
             <button class="layui-btn layui-btn-xs layui-btn-primary btn-download" style="margin-left: 20px" type="button" data-name="{{ item.name }}">下载</button>
-            <button class="layui-btn layui-btn-xs layui-btn-danger btn-del" style="margin-left: 20px" type="button" data-name="{{ item.name }}">X</button>
             {{#}}}
         </span>
+        <button class="layui-btn layui-btn-xs layui-btn-danger btn-del" style="margin-left: 20px" type="button" data-name="{{ item.name }}">X</button>
     </li>
     {{# }); }}
 
