@@ -3,6 +3,8 @@ package win.hupubao
 import io.javalin.Javalin
 import win.hupubao.utils.BookDownloader
 import win.hupubao.utils.HistoryUtils
+import java.io.File
+import java.io.FileInputStream
 
 
 fun main(args: Array<String>) {
@@ -30,5 +32,13 @@ fun main(args: Array<String>) {
 
     app.get("/history") { ctx ->
         ctx.json(HistoryUtils.getHistory())
+    }
+
+    app.get("/download") { ctx ->
+        val file = BookDownloader.getBookFile(ctx.queryParam("name", "")!!)
+        ctx.res.setContentLengthLong(file.length())
+
+        val inputStream = file.inputStream()
+        ctx.res.outputStream.write(inputStream.readBytes())
     }
 }

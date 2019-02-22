@@ -23,6 +23,7 @@ object BookDownloader {
     val OUT_PATH = "/files/txtbook/"
 
     var domain: String = ""
+    val ext = ".txt"
 
     fun request(url: String): Document {
         return Page.create().userAgent(USER_AGENT).readTimeout(TIMEOUT).retryTimes(6).request(url, null, Connection.Method.GET).parse()
@@ -116,7 +117,7 @@ object BookDownloader {
                      name: String) {
         GlobalScope.launch {
 
-            val file = File("$OUT_PATH$name.txt")
+            val file = File("$OUT_PATH$name$ext")
             if (!file.parentFile.exists()) {
                 file.parentFile.mkdirs()
             }
@@ -176,6 +177,11 @@ object BookDownloader {
         }
 
         return chapters
+    }
+
+
+    fun getBookFile(name: String): File {
+        return File("$OUT_PATH$name$ext")
     }
 
 
