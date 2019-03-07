@@ -17,13 +17,13 @@ import kotlin.collections.joinToString
 
 object BookDownloader {
 
-    val USER_AGENT = "Mozilla/5.0 (iPhone; CPU iPhone OS 12_1_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.0 Mobile/15E148 Safari/604.1"
-    val TIMEOUT = 5000
+    private const val USER_AGENT = "Mozilla/5.0 (iPhone; CPU iPhone OS 12_1_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.0 Mobile/15E148 Safari/604.1"
+    private const val TIMEOUT = 5000
 
-    val OUT_PATH = "/files/txtbook/"
+    private const val OUT_PATH = "/files/txtbook/"
 
     var domain: String = ""
-    val ext = ".txt"
+    private const val ext = ".txt"
 
     fun request(url: String): Document {
         return Page.create().userAgent(USER_AGENT).readTimeout(TIMEOUT).retryTimes(6).request(url, null, Connection.Method.GET).parse()

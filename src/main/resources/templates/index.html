@@ -83,15 +83,17 @@
                 },
                 success: function (data) {
 
-                    if (data.length > 0) {
+                    layer.close(indexLoad)
+
+                    if (data.success) {
                         const getTpl = leftList.innerHTML,
                             view = document.querySelector('#view-left-list');
-                        laytpl(getTpl).render(data, function (html) {
+                        laytpl(getTpl).render(data.list, function (html) {
                             view.innerHTML = html
                         })
+                    } else {
+                        layer.msg(data.message)
                     }
-
-                    layer.close(indexLoad)
                 },
                 error: function (e) {
                     layer.close(indexLoad)

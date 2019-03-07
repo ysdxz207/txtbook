@@ -1,5 +1,6 @@
 package win.hupubao
 
+import com.alibaba.fastjson.JSONObject
 import io.javalin.Javalin
 import win.hupubao.utils.BookDownloader
 import win.hupubao.utils.HistoryUtils
@@ -16,7 +17,17 @@ fun main(args: Array<String>) {
     }
 
     app.get("/chapters") { ctx ->
-        ctx.json(BookDownloader.getChapterList(ctx.queryParam("url", "")))
+        val json = JSONObject()
+        try {
+
+            json["list"] = BookDownloader.getChapterList(ctx.queryParam("url", ""))
+            json["success"] = true
+            ctx.json(json)
+        } catch (e: Exception) {
+            json["success"] = false
+            json["message"] = e.message?:""
+            ctx.json(json)
+        }
     }
 
     app.get("/content") { ctx ->
