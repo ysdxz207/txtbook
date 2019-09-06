@@ -1,4 +1,4 @@
-package win.hupubao.utils
+package com.hupubao.utils
 
 import com.hupubao.common.http.Page
 import org.jsoup.Connection

@@ -1,4 +1,4 @@
-package win.hupubao.utils
+package com.hupubao.utils
 
 import com.hupubao.common.http.Page
 import kotlinx.coroutines.GlobalScope
@@ -9,8 +9,8 @@ import org.apache.commons.io.FileUtils
 import org.jsoup.Connection
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
-import win.hupubao.beans.Chapter
-import win.hupubao.beans.History
+import com.hupubao.beans.Chapter
+import com.hupubao.beans.History
 import java.io.File
 import java.net.URL
 

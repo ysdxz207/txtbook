@@ -1,10 +1,10 @@
-package win.hupubao.utils
+package com.hupubao.utils
 
 import com.alibaba.fastjson.JSONObject
 import com.hupubao.common.http.Page
 import org.jsoup.Connection
-import win.hupubao.beans.Book
-import win.hupubao.beans.PageInfo
+import com.hupubao.beans.Book
+import com.hupubao.beans.PageInfo
 
 
 object BookCollector {

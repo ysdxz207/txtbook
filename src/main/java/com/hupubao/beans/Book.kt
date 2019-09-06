@@ -1,4 +1,4 @@
-package win.hupubao.beans
+package com.hupubao.beans
 
 class Book {
     var name: String? = null

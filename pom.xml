@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>win.hupubao</groupId>
+    <groupId>com.hupubao</groupId>
     <artifactId>txtbook</artifactId>
     <version>1.0.1-RELEASE</version>
     <description>下载小说TXT</description>
@@ -119,7 +119,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>win.hupubao.AppKt</mainClass>
+                            <mainClass>com.hupubao.AppKt</mainClass>
                         </manifest>
                         <manifestEntries>
                             <Class-Path>.</Class-Path>

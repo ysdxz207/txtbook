@@ -1,10 +1,10 @@
-package win.hupubao
+package com.hupubao
 
 import com.alibaba.fastjson.JSONObject
 import io.javalin.Javalin
-import win.hupubao.utils.BookCollector
-import win.hupubao.utils.BookDownloader
-import win.hupubao.utils.HistoryUtils
+import com.hupubao.utils.BookCollector
+import com.hupubao.utils.BookDownloader
+import com.hupubao.utils.HistoryUtils
 
 
 fun main(args: Array<String>) {

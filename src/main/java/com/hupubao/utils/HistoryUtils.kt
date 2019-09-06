@@ -1,11 +1,11 @@
-package win.hupubao.utils
+package com.hupubao.utils
 
 import com.alibaba.fastjson.JSON
 import com.alibaba.fastjson.JSONArray
 import com.alibaba.fastjson.JSONObject
 import com.alibaba.fastjson.serializer.SerializerFeature
 import org.apache.commons.io.FileUtils
-import win.hupubao.beans.History
+import com.hupubao.beans.History
 import java.io.File
 
 object HistoryUtils {
