@@ -1,19 +1,18 @@
 package win.hupubao.utils
 
-import kotlinx.coroutines.*
+import com.hupubao.common.http.Page
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.apache.commons.io.FileUtils
 import org.jsoup.Connection
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import win.hupubao.beans.Chapter
 import win.hupubao.beans.History
-import win.hupubao.common.http.Page
 import java.io.File
 import java.net.URL
-import kotlin.collections.distinctBy
-import kotlin.collections.filter
-import kotlin.collections.forEachIndexed
-import kotlin.collections.joinToString
 
 object BookDownloader {
 

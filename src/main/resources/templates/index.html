@@ -10,8 +10,12 @@
 <div th:include="/templates/public.html :: public_static"></div>
 
 <div class="header" th:text="TXTBOOK"></div>
+
 <div class="main">
     <div class="top-bar layui-row">
+        <div class="layui-col-md12">
+            <a href="/books?ratio=70" target="_blank" class="layui-btn layui-btn-danger" type="button">好书搜集</a>
+        </div>
         <div class="layui-col-md9">
             <input placeholder="章节目录地址" class="layui-input input-url"/>
         </div>

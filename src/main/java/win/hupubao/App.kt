@@ -2,6 +2,7 @@ package win.hupubao
 
 import com.alibaba.fastjson.JSONObject
 import io.javalin.Javalin
+import win.hupubao.utils.BookCollector
 import win.hupubao.utils.BookDownloader
 import win.hupubao.utils.HistoryUtils
 
@@ -25,7 +26,7 @@ fun main(args: Array<String>) {
             ctx.json(json)
         } catch (e: Exception) {
             json["success"] = false
-            json["message"] = e.message?:""
+            json["message"] = e.message ?: ""
             ctx.json(json)
         }
     }
@@ -53,6 +54,10 @@ fun main(args: Array<String>) {
 
     app.get("/del") { ctx ->
         ctx.json(BookDownloader.del(ctx.queryParam("name", "")!!))
+    }
+
+    app.get("/books") { ctx ->
+        ctx.json(BookCollector.getMajorCollectBookList(ctx.queryParam("ratio", "70")!!.toDouble()))
     }
 
 }

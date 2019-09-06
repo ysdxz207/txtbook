@@ -1,8 +1,7 @@
 package win.hupubao.utils
 
-import javassist.compiler.ast.Keyword
+import com.hupubao.common.http.Page
 import org.jsoup.Connection
-import win.hupubao.common.http.Page
 
 private const val search_engine_url = "http://caup.cn"
 private const val TIMEOUT = 5000
