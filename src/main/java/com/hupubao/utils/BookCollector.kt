@@ -26,6 +26,9 @@ object BookCollector {
         majors.forEach { major ->
             bookList.addAll(getMajorCollectBookList(ratio, major))
         }
+
+        bookList.sortBy { it.ratio }
+        bookList.reverse()
         return bookList
     }
 
